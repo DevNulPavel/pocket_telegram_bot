@@ -36,6 +36,10 @@ quick_error!{
         RedisError(err: redis::RedisError){
             from()
         }
+
+        PocketError(err: pocket_api_client::PocketApiError){
+            from()
+        }
     }
 }
 

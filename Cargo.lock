@@ -729,7 +729,7 @@ checksum = "3831453b3449ceb48b6d9c7ad7c96d5ea673e9b470a1dc578c2ce6521230884c"
 [[package]]
 name = "pocket_api_client"
 version = "0.1.0"
-source = "git+https://github.com/DevNulPavel/pocket_api_client?rev=fe65bba2c693087e9276a60f8ac7c5a5351bebe2#fe65bba2c693087e9276a60f8ac7c5a5351bebe2"
+source = "git+https://github.com/DevNulPavel/pocket_api_client?rev=7f4e3802a85b3c6949b2ab143cd7de52fae0635f#7f4e3802a85b3c6949b2ab143cd7de52fae0635f"
 dependencies = [
  "async-trait",
  "cow_arc",

@@ -26,7 +26,8 @@ use reqwest::{
     Client
 };
 use pocket_api_client::{
-    PocketApiConfig
+    PocketApiConfig,
+    PocketApiTokenReceiver
 };
 use crate::{
     app_config::{
@@ -95,18 +96,34 @@ async fn main(){
             .build(redis_manager)
             .await
             .expect("Redis pool create failed");
+        {
+            debug!("Redis connection check...");
+            let mut conn = pool
+                .get()
+                .await
+                .expect("Redis connection receive failed");
+            
+            let res: String = redis::cmd("PING")
+                .query_async(&mut *conn)
+                .await
+                .expect("Redis complete");
+            assert!(res.eq("PONG"), "Redis connection failed");
+            debug!("Redis connection is OK");
+        }
+
         RedisClient::new(pool)
     };
 
-    let pocket_api_config = PocketApiConfig::new_default(http_client.clone(), config.pocket_consumer_key.clone());
+    let pocket_api_config = PocketApiConfig::new_default(http_client.clone(), config.pocket_consumer_key);
+    let pocket_token_receiver = PocketApiTokenReceiver::new(pocket_api_config.clone(), config.pocket_redirect_uri);
 
     let app = Arc::new(Application{
-        config,
         http_client,
         telegram_client,
         redis_client,
         active_processors: Default::default(),
-        pocket_api_config
+        pocket_api_config,
+        pocket_token_receiver
     });
 
     loop {
