@@ -24,5 +24,16 @@ quick_error!{
         ApiError(err: TelegramErrorResponse){
             from()
         }
+
+        RedisPoolError(err: bb8::RunError<redis::RedisError>){
+            from()
+        }
+
+        RedisError(err: redis::RedisError){
+            from()
+        }
     }
 }
+
+
+

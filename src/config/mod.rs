@@ -1,8 +1,9 @@
 
 #[derive(Debug)]
 pub struct TelegramBotConfig{
-    pub telegram_bot_api_url: reqwest::Url,
-    pub pocket_consumer_key: String
+    pub telegram_bot_token: String,
+    pub pocket_consumer_key: String,
+    pub redis_address: String
 }
 
 impl TelegramBotConfig{
@@ -10,14 +11,14 @@ impl TelegramBotConfig{
         let pocket_consumer_key = std::env::var("POCKET_CONSUMER_ID")
             .expect("POCKET_CONSUMER_ID env var is missing");
         let telegram_bot_token = std::env::var("TELEGRAM_BOT_TOKEN")
-            .expect("TELEGRAM_BOT_TOKEN env var is missing");  
-        
-        let telegram_bot_api_url = reqwest::Url::parse(&format!("https://api.telegram.org/bot{}/", telegram_bot_token))
-            .expect("Invalid telegram api url");
+            .expect("TELEGRAM_BOT_TOKEN env var is missing");
+        let redis_address = std::env::var("REDIS_ADDRESS")
+            .expect("REDIS_ADDRESS env var is missing");
 
         TelegramBotConfig{
             pocket_consumer_key,
-            telegram_bot_api_url
+            telegram_bot_token,
+            redis_address
         }
     }
 }

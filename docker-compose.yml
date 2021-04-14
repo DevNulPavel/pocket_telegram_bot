@@ -1,0 +1,19 @@
+version: "3.8"
+services:
+  redis:
+    image: arm64v8/redis:6.2.1-alpine
+    container_name: redis
+    restart: always
+    environment:
+        - REDIS_PASSWORD=redis_pass
+    volumes:
+        - $PWD/redis_data:/data
+    ports:
+        - 6379:6379
+    networks:
+        - internal
+    # env_file:
+    # network_mode: host
+networks:
+    internal:
+        driver: bridge

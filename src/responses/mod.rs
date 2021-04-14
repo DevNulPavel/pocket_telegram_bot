@@ -59,14 +59,14 @@ pub struct TelegramUpdatesResponse{
 
 #[derive(Deserialize, Debug)]
 pub struct TelegramMessage{
-    message_id: i32,
-    from: Option<TelegramUser>,
-    text: Option<String>
+    pub message_id: i32,
+    pub from: Option<TelegramUser>,
+    pub text: Option<String>
 }
 
 
 #[derive(Deserialize, Debug)]
 pub struct TelegramUser{
-    id: i32,
-    username: Option<String>
+    pub id: i32,
+    pub username: Option<String>
 }
