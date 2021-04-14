@@ -19,10 +19,12 @@ cow_arc = "0.2.2"
 reqwest_inspect_json = "0.0.7"
 bb8 = "0.7.0"
 bb8-redis = "0.9.0"
+futures = "0.3.14"
+url = "2.2.1"
 # deadpool-redis = "0.7.1"
 # deadpool = "0.7.0"
-futures = "0.3.14"
-actix = "0.11.1"
+# actix = "0.11.1"
 redis = {version = "0.20.0", features = ["aio", "tokio-comp"]}
 tokio = {version = "1.4.0", features = ["full"]}
 reqwest = {version = "0.11.2", features = ["json", "rustls-tls"]}
+pocket_api_client = {git = "https://github.com/DevNulPavel/pocket_api_client", rev = "fe65bba2c693087e9276a60f8ac7c5a5351bebe2"}

@@ -2,7 +2,7 @@ use quick_error::{
     quick_error
 };
 use crate::{
-    responses::{
+    telegram_client::{
         TelegramErrorResponse
     }
 };
@@ -11,6 +11,10 @@ quick_error!{
     #[derive(Debug)]
     pub enum TelegramBotError{
         InvalidApiUrl{
+        }
+
+        UrlError(err: url::ParseError){
+            from()
         }
 
         RequestError(err: reqwest::Error){
