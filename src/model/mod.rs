@@ -7,8 +7,11 @@ use serde::{
 #[serde(tag = "type", content = "content")]
 pub enum UserState {
     Unautorized,
-    Autorization{
+    AutorizationConfirmationWaiting{
         pocket_auth_url: String,
+        pocket_auth_code: String
+    },
+    AutorizationConfirmed{
         pocket_auth_code: String
     },
     Authorized{

@@ -24,7 +24,7 @@ url = "2.2.1"
 redis = {version = "0.20.0", features = ["aio", "tokio-comp"]}
 tokio = {version = "1.4.0", features = ["full"]}
 reqwest = {version = "0.11.2", features = ["json", "rustls-tls"]}
-pocket_api_client = {git = "https://github.com/DevNulPavel/pocket_api_client", rev = "7f4e3802a85b3c6949b2ab143cd7de52fae0635f"}
+pocket_api_client = {git = "https://github.com/DevNulPavel/pocket_api_client", rev = "5a9eabea88efbda103bdb780533ce5532782b65e"}
 # num_enum = "0.5.1"
 # deadpool-redis = "0.7.1"
 # deadpool = "0.7.0"

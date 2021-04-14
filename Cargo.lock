@@ -729,7 +729,7 @@ checksum = "3831453b3449ceb48b6d9c7ad7c96d5ea673e9b470a1dc578c2ce6521230884c"
 [[package]]
 name = "pocket_api_client"
 version = "0.1.0"
-source = "git+https://github.com/DevNulPavel/pocket_api_client?rev=7f4e3802a85b3c6949b2ab143cd7de52fae0635f#7f4e3802a85b3c6949b2ab143cd7de52fae0635f"
+source = "git+https://github.com/DevNulPavel/pocket_api_client?rev=5a9eabea88efbda103bdb780533ce5532782b65e#5a9eabea88efbda103bdb780533ce5532782b65e"
 dependencies = [
  "async-trait",
  "cow_arc",
@@ -739,6 +739,7 @@ dependencies = [
  "serde",
  "serde_json",
  "tracing",
+ "url",
 ]
 
 [[package]]

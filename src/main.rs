@@ -115,7 +115,8 @@ async fn main(){
     };
 
     let pocket_api_config = PocketApiConfig::new_default(http_client.clone(), config.pocket_consumer_key);
-    let pocket_token_receiver = PocketApiTokenReceiver::new(pocket_api_config.clone(), config.pocket_redirect_uri);
+    let pocket_token_receiver = PocketApiTokenReceiver::new(pocket_api_config.clone(), 
+                                                            config.pocket_redirect_uri);
 
     let app = Arc::new(Application{
         http_client,

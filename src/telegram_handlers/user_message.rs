@@ -88,10 +88,12 @@ pub async fn user_message_processing_loop(app: Arc<Application>,
                         // Инфа по аутентификации
                         let auth_info = app
                             .pocket_token_receiver
-                            .optain_user_auth_info()
+                            .optain_user_auth_info(&[
+                                ("user_id", &format!("{}", user_id))
+                            ])
                             .await?;
 
-                        // Пишем сообщение
+                        // Пишем сообщение с ссылкой на подтверждение прав доступа
                         app
                             .telegram_client
                             .send_message(user_id, auth_info.auth_url.to_string())
@@ -100,7 +102,7 @@ pub async fn user_message_processing_loop(app: Arc<Application>,
                         // Обновляем состояние
                         app
                             .redis_client
-                            .set_user_state(user_id, UserState::Autorization{
+                            .set_user_state(user_id, UserState::AutorizationConfirmationWaiting{
                                 pocket_auth_code: auth_info.code,
                                 pocket_auth_url: auth_info.auth_url.to_string()
                             })
@@ -111,10 +113,35 @@ pub async fn user_message_processing_loop(app: Arc<Application>,
                     }
                 }
             },
-            UserState::Autorization{pocket_auth_code, pocket_auth_url} => {
-
+            UserState::AutorizationConfirmationWaiting{pocket_auth_url, ..} => {
+                // Пишем сообщение с ссылкой на подтверждение прав доступа
+                app
+                    .telegram_client
+                    .send_message(user_id, pocket_auth_url)
+                    .await?;
             },
-            UserState::Authorized{pocket_api_token} => {
+            UserState::AutorizationConfirmed{pocket_auth_code} => {
+                // Получаем токен
+                let token = app
+                    .pocket_token_receiver
+                    .receive_token(pocket_auth_code)
+                    .await?;
+
+                // Пишем сообщение
+                app
+                    .telegram_client
+                    .send_message(user_id, "Authorization confirmed".to_string())
+                    .await?;
+
+                // Обновляем состояние
+                app
+                .redis_client
+                .set_user_state(user_id, UserState::Authorized{
+                    pocket_api_token: token
+                })
+                .await?;
+            },
+            UserState::Authorized{..} => {
 
             }
         }
