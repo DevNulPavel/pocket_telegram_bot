@@ -120,29 +120,8 @@ pub async fn user_message_processing_loop(app: Arc<Application>,
                     .send_message(user_id, pocket_auth_url)
                     .await?;
             },
-            UserState::AutorizationConfirmed{pocket_auth_code} => {
-                // Получаем токен
-                let token = app
-                    .pocket_token_receiver
-                    .receive_token(pocket_auth_code)
-                    .await?;
-
-                // Пишем сообщение
-                app
-                    .telegram_client
-                    .send_message(user_id, "Authorization confirmed".to_string())
-                    .await?;
-
-                // Обновляем состояние
-                app
-                .redis_client
-                .set_user_state(user_id, UserState::Authorized{
-                    pocket_api_token: token
-                }, None)
-                .await?;
-            },
-            UserState::Authorized{..} => {
-
+            UserState::Authorized{pocket_api_token} => {
+                debug!("User is authorized in pocket: {}", pocket_api_token);
             }
         }
 

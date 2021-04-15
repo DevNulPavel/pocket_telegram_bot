@@ -4,13 +4,14 @@ use std::{
     }
 };
 use warp::{
-    Server,
     Rejection,
     Filter,
-    Future,
-    Reply,
-    Sink,
-    Stream
+    Reply
+};
+use tap::{
+    prelude::{
+        *
+    }
 };
 use serde_json::{
     json
@@ -19,7 +20,8 @@ use serde::{
     Deserialize
 };
 use tracing::{
-    instrument
+    instrument,
+    error
 };
 use crate::{
     app::{
@@ -41,18 +43,29 @@ use crate::{
 // TODO: Конвертация в JSON ошибки
 // https://github.com/seanmonstar/warp/blob/master/examples/rejections.rs
 
-#[derive(Debug)]
-struct JsonResp(String);
+// #[derive(Debug)]
+// struct JsonResp(String);
+// impl warp::reject::Reject for JsonResp {}
+// impl From<TelegramBotError> for Rejection {
+//     fn from(err: TelegramBotError) -> Self {
+//         let data = json!({
+//             "code": warp::http::StatusCode::INTERNAL_SERVER_ERROR.as_u16(),
+//             "description": "asd"
+//         });
+//         warp::reject::custom(JsonResp(serde_json::to_string(&data).unwrap()))
+//     }
+// }
 
-impl warp::reject::Reject for JsonResp {}
+impl warp::reject::Reject for TelegramBotError {
+}
 
-impl From<TelegramBotError> for Rejection {
-    fn from(err: TelegramBotError) -> Self {
+impl Reply for TelegramBotError{
+    fn into_response(self) -> warp::reply::Response {
         let data = json!({
             "code": warp::http::StatusCode::INTERNAL_SERVER_ERROR.as_u16(),
-            "description": "asd"
+            "description": self.to_string()
         });
-        warp::reject::custom(JsonResp(serde_json::to_string(&data).unwrap()))
+        warp::reply::json(&data).into_response()
     }
 }
 
@@ -64,23 +77,40 @@ struct QueryParams{
 }
 
 #[instrument(skip(app))]
-async fn callback_processor(app: Arc<Application>, params: QueryParams) -> Result<impl warp::reply::Reply, Rejection>{
+async fn callback_processor(app: Arc<Application>, params: QueryParams) -> Result<impl Reply, Rejection>{
     let state = app
         .redis_client
         .get_user_state(params.user_id)
-        .await?;
+        .await
+        .tap_err(|err|{ error!("User state receive error: {}", err); })?;
     
     match state {
         UserState::AutorizationConfirmationWaiting{pocket_auth_code, ..} => {
-            app.redis_client
-                .set_user_state(params.user_id, UserState::AutorizationConfirmed{
-                    pocket_auth_code
-                }, None)
-                .await?;
+            // Заполучаем токен
+            let token = app
+                .pocket_token_receiver
+                .receive_token(pocket_auth_code)
+                .await
+                .map_err(TelegramBotError::from)
+                .tap_err(|err|{ error!("Token receive error: {}", err); })?;
 
-            // Вызвать обработку цикла для сообщения пользователю
+            // Обновляем состояние на авторизованное
+            app.redis_client
+                .set_user_state(params.user_id, UserState::Authorized{
+                    pocket_api_token: token
+                }, None)
+                .await
+                .tap_err(|err|{ error!("User state update error: {}", err); })?;
+
+            // Пишем сообщение пользователю про успешную авторизацию
+            app
+                .telegram_client
+                .send_message(params.user_id, "Authorization confirmed".to_string())
+                .await
+                .tap_err(|err|{ error!("User message send error: {}", err); })?;
         },
         _ => {
+            error!("Invalid user auth confirm state: {:#?}", state);
         }
     }
 

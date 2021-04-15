@@ -52,7 +52,7 @@ where
 {
     type Target = Receiver<V>;
 
-    #[instrument(level = "trace", skip(self))]
+    #[instrument(skip(self))]
     fn deref(&self) -> &Self::Target {
         &self.receiver
     }
@@ -63,7 +63,7 @@ where
     K: Hash + Eq + Debug,
     V: Debug
 {
-    #[instrument(level = "trace", skip(self))]
+    #[instrument(skip(self))]
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.receiver
     }
@@ -74,7 +74,7 @@ where
     K: Hash + Eq + Debug,
     V: Debug
 {
-    #[instrument(level = "trace", skip(self))]
+    #[instrument(skip(self))]
     fn drop(&mut self) {
         let mut sub_lock = self.subscribers.lock().expect("Mutex lock failed");
         sub_lock.remove(&self.key);
@@ -125,7 +125,7 @@ where
         Default::default()
     }
     
-    #[instrument(level = "trace", skip(self, receiver_init_func))]
+    #[instrument(skip(self, receiver_init_func))]
     pub fn subscribe_if_does_not_exist<F>(&self, k: K, buffer: usize, receiver_init_func: F) -> Sender<V>
     where
         F: FnOnce(Subscription<K, V>)
