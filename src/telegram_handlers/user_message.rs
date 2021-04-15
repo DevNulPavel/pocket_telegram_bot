@@ -105,7 +105,7 @@ pub async fn user_message_processing_loop(app: Arc<Application>,
                             .set_user_state(user_id, UserState::AutorizationConfirmationWaiting{
                                 pocket_auth_code: auth_info.code,
                                 pocket_auth_url: auth_info.auth_url.to_string()
-                            })
+                            }, Some(Duration::from_secs(60 * 10)))
                             .await?;
                     },
                     _ => {
@@ -138,7 +138,7 @@ pub async fn user_message_processing_loop(app: Arc<Application>,
                 .redis_client
                 .set_user_state(user_id, UserState::Authorized{
                     pocket_api_token: token
-                })
+                }, None)
                 .await?;
             },
             UserState::Authorized{..} => {

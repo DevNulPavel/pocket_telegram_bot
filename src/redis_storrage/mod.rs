@@ -1,3 +1,8 @@
+use std::{
+    time::{
+        Duration
+    }
+};
 use redis::{
     AsyncCommands
 };
@@ -32,34 +37,29 @@ use crate::{
 
 
 #[derive(Debug, Constructor)]
-pub struct RedisClient{
+pub struct RedisStorrage{
     pub redis_pool: Pool<RedisConnectionManager>
 }
 
-impl RedisClient {
+impl RedisStorrage {
     #[instrument(skip(self))]
     pub async fn get_user_state(&self, user_id: TelegramUserId) -> Result<UserState, TelegramBotError> {
-        let key = format!("user_state:{}:json", user_id);
+        let state_str: Option<String> = {
+            let key = format!("user_state:{}:json", user_id);
         
-        let mut conn = self
-            .redis_pool
-            .get()
-            .await?;
-
-        let exists: bool = conn
-            .exists(&key)
-            .await?;
-
-        if exists {
-            let state_str: String = conn
-                .get(key)
+            let mut conn = self
+                .redis_pool
+                .get()
                 .await?;
-            drop(conn);
 
+            conn
+                .get(key)
+                .await?
+        };
+
+        if let Some(state_str) = state_str {
             debug!("User state exists: {}", state_str);
-
             let state: UserState = from_str(&state_str)?;
-
             Ok(state)
         }else{
             debug!("User state is empty");
@@ -68,7 +68,9 @@ impl RedisClient {
     }
 
     #[instrument(skip(self))]
-    pub async fn set_user_state(&self, user_id: TelegramUserId, state: UserState) -> Result<(), TelegramBotError> {
+    pub async fn set_user_state(&self, user_id: TelegramUserId, 
+                                       state: UserState, 
+                                       ttl: Option<Duration>) -> Result<(), TelegramBotError> {
         let state_str = to_string(&state)?;
 
         debug!("User state set: {}", state_str);
@@ -79,10 +81,17 @@ impl RedisClient {
             .redis_pool
             .get()
             .await?;
-        
-        conn
-            .set(&key, &state_str)
-            .await?;
+
+        if let Some(ttl) = ttl {
+            let seconds = ttl.as_secs() as usize;
+            conn
+                .set_ex(&key, &state_str, seconds)
+                .await?;
+        }else{
+            conn
+                .set(&key, &state_str)
+                .await?;
+        }
 
         Ok(())
     }

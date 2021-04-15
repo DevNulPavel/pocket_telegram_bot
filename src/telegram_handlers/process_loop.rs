@@ -32,7 +32,7 @@ use super::{
 };
 
 /// Данный метод нужен лишь для того, чтобы спокойно отлавливать ошибки и логировать их этой корутине
-#[instrument(level = "error", skip(app, sub), fields(user_id = sub.get_key()))]
+#[instrument(skip(app, sub), fields(user_id = sub.get_key()))]
 async fn start_user_message_processing(app: Arc<Application>, sub: Subscription<TelegramUserId, String>) {
     if let Err(err) = user_message_processing_loop(app, sub).await {
         error!("User message processing error: {:?}", err);

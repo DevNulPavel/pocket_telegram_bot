@@ -6,7 +6,8 @@ mod app_config;
 mod model;
 mod telegram_handlers;
 mod telegram_client;
-mod redis_client;
+mod redis_storrage;
+mod web_server;
 
 use std::{
     sync::{
@@ -20,6 +21,11 @@ use tracing::{
 use tracing_subscriber::{
     prelude::{
         *
+    },
+    fmt::{
+        format::{
+            FmtSpan
+        }
     }
 };
 use reqwest::{
@@ -42,8 +48,11 @@ use crate::{
     telegram_client::{
         TelegramClient
     },
-    redis_client::{
-        RedisClient
+    redis_storrage::{
+        RedisStorrage
+    },
+    web_server::{
+        
     }
 };
 
@@ -60,7 +69,8 @@ fn initialize_logs() {
     // Логи в stdout
     let stdoud_sub = tracing_subscriber::fmt::layer()
         .pretty()
-        .with_writer(std::io::stdout);
+        .with_writer(std::io::stdout)
+        .with_span_events(FmtSpan::FULL);
 
     // Суммарный обработчик
     let full_subscriber = tracing_subscriber::registry()
@@ -111,12 +121,13 @@ async fn main(){
             debug!("Redis connection is OK");
         }
 
-        RedisClient::new(pool)
+        RedisStorrage::new(pool)
     };
 
     let pocket_api_config = PocketApiConfig::new_default(http_client.clone(), config.pocket_consumer_key);
     let pocket_token_receiver = PocketApiTokenReceiver::new(pocket_api_config.clone(), 
                                                             config.pocket_redirect_uri);
+
 
     let app = Arc::new(Application{
         http_client,
@@ -126,6 +137,9 @@ async fn main(){
         pocket_api_config,
         pocket_token_receiver
     });
+
+    // TODO: Gracefull shutdown
+    tokio::spawn(web_server::run_server(app.clone(), config.pocket_redirect_web_server_port));
 
     loop {
         if let Err(err) = telegram_receive_updates_loop(app.clone()).await {

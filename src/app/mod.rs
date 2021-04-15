@@ -13,15 +13,15 @@ use crate::{
         TelegramClient,
         TelegramUserId
     },
-    redis_client::{
-        RedisClient
+    redis_storrage::{
+        RedisStorrage
     }
 };
 
 pub struct Application{
     pub http_client: Client,
     pub telegram_client: TelegramClient,
-    pub redis_client: RedisClient,
+    pub redis_client: RedisStorrage,
     pub active_processors: PubSub<TelegramUserId, String>,
     pub pocket_api_config: PocketApiConfig,
     pub pocket_token_receiver: PocketApiTokenReceiver
