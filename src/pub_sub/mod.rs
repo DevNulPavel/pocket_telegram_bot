@@ -19,7 +19,7 @@ use std::{
 };
 use tracing::{
     instrument,
-    debug,
+    // debug,
     trace
 };
 use tokio::{
@@ -121,9 +121,9 @@ where
     K: Hash + Eq + Clone + Debug,
     V: Debug
 {
-    pub fn new() -> PubSub<K, V>{
-        Default::default()
-    }
+    // pub fn new() -> PubSub<K, V>{
+    //     Default::default()
+    // }
     
     #[instrument(skip(self, receiver_init_func))]
     pub fn subscribe_if_does_not_exist<F>(&self, k: K, buffer: usize, receiver_init_func: F) -> Sender<V>

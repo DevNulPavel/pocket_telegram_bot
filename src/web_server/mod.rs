@@ -21,7 +21,8 @@ use serde::{
 };
 use tracing::{
     instrument,
-    error
+    error,
+    debug
 };
 use pocket_api_client::{
     PocketApiError
@@ -95,6 +96,7 @@ async fn callback_processor(app: Arc<Application>, params: QueryParams) -> Resul
                 .await
                 .map_err(TelegramBotError::from)
                 .tap_err(|err|{ error!("Token receive error: {}", err); });
+            debug!("Token reponse: {:?}", token);
 
             match token {
                 Ok(token) =>{
@@ -127,7 +129,7 @@ async fn callback_processor(app: Arc<Application>, params: QueryParams) -> Resul
                             // Обновляем состояние на неавторизованное
                             app
                                 .redis_client
-                                .set_user_state(params.user_id, UserState::Unautorized, None)
+                                .set_user_state(params.user_id, UserState::Unauthorized, None)
                                 .await
                                 .tap_err(|err|{ error!("User state update error: {}", err); })?;
 

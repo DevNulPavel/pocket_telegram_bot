@@ -12,7 +12,7 @@ use crate::{
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(tag = "type", content = "content")]
 pub enum UserState {
-    Unautorized,
+    Unauthorized,
     AutorizationConfirmationWaiting{
         telegram_message_id: TelegramMessageId,
         telegram_user_id: TelegramUserId,

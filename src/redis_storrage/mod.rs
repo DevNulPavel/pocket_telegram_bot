@@ -63,7 +63,7 @@ impl RedisStorrage {
             Ok(state)
         }else{
             debug!("User state is empty");
-            Ok(UserState::Unautorized)
+            Ok(UserState::Unauthorized)
         }
     }
 
