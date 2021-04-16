@@ -14,6 +14,7 @@ pub use {
         TelegramErrorResponse,
         TelegramUserId,
         TelegramUpdatesResponse,
-        TelegramMessageData
+        TelegramMessageData,
+        TelegramMessageId
     }
 };

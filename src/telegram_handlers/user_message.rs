@@ -11,21 +11,9 @@ use tokio::{
         timeout
     }
 };
-use reqwest_inspect_json::{
-    InspectJson
-};
-use serde_json::{
-    json
-};
 use tracing::{
     instrument,
-    debug,
-    error,
-    trace
-};
-use pocket_api_client::{
-    PocketApiClient,
-    PocketApiTokenReceiver
+    debug
 };
 use crate::{
     app::{
@@ -37,13 +25,8 @@ use crate::{
     error::{
         TelegramBotError
     },
-    helpers::{
-        DataOrErrorResponse
-    },
     telegram_client::{
         TelegramClient,
-        TelegramErrorResponse,
-        TelegramMessageData,
         TelegramUserId
     },
     model::{
@@ -94,7 +77,7 @@ pub async fn user_message_processing_loop(app: Arc<Application>,
                             .await?;
 
                         // Пишем сообщение с ссылкой на подтверждение прав доступа
-                        app
+                        let message = app
                             .telegram_client
                             .send_message(user_id, auth_info.auth_url.to_string())
                             .await?;
@@ -103,6 +86,8 @@ pub async fn user_message_processing_loop(app: Arc<Application>,
                         app
                             .redis_client
                             .set_user_state(user_id, UserState::AutorizationConfirmationWaiting{
+                                telegram_message_id: message.message_id,
+                                telegram_user_id: user_id,
                                 pocket_auth_code: auth_info.code,
                                 pocket_auth_url: auth_info.auth_url.to_string()
                             }, Some(Duration::from_secs(60 * 10)))

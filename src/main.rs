@@ -129,6 +129,7 @@ async fn main(){
     let app = Arc::new(Application{
         http_client,
         telegram_client,
+        telegram_bot_url: config.telegram_bot_url,
         redis_client,
         active_processors: Default::default(),
         pocket_api_config,

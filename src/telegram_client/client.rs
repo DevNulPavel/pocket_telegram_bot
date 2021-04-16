@@ -33,7 +33,8 @@ use super::{
         TelegramErrorResponse,
         TelegramUpdatesResponse,
         TelegramUserId,
-        TelegramMessageResponse
+        TelegramMessageResponse,
+        TelegramMessageId
     },
     config::{
         TelegramClientConfig
@@ -95,6 +96,35 @@ impl TelegramClient {
             .json(&json!({
                 "chat_id": user_id,
                 "text": msg
+            }))
+            .send()
+            .await?
+            .inspect_json::<DataOrErrorResponse<TelegramMessageResponse, TelegramErrorResponse>, 
+                            TelegramBotError>(|d| { debug!("User message response: {}", d) })
+            .await?
+            .into_result()?;
+        debug!("Received message: {:#?}", message_resp);
+
+        Ok(TelegramMessage::new(self.config.clone(), message_resp.result))
+    }
+
+    #[instrument(skip(self))]
+    pub async fn update_message_text_by_id(&self, 
+                                           user_id: TelegramUserId, 
+                                           message_id: TelegramMessageId, 
+                                           new_text: String) -> Result<TelegramMessage, TelegramBotError>{
+        let url = self.config.api_url.join("editMessageText")?;
+        trace!("Message url: {}", url);
+
+        // https://core.telegram.org/bots/api#updating-messages
+        let message_resp = self
+            .config
+            .http_client
+            .post(url)
+            .json(&json!({
+                "chat_id": user_id,
+                "message_id": message_id,
+                "text": new_text
             }))
             .send()
             .await?

@@ -2,6 +2,7 @@
 #[derive(Debug)]
 pub struct TelegramBotConfig{
     pub telegram_bot_token: String,
+    pub telegram_bot_url: url::Url,
     pub pocket_consumer_key: String,
     pub pocket_redirect_web_server_port: u16,
     pub pocket_redirect_uri: url::Url,
@@ -22,6 +23,10 @@ impl TelegramBotConfig{
             .expect("POCKET_REDIRECT_WEB_SERVER_PORT is invalid port value");
         let telegram_bot_token = std::env::var("TELEGRAM_BOT_TOKEN")
             .expect("TELEGRAM_BOT_TOKEN env var is missing");
+        let telegram_bot_url = std::env::var("TELEGRAM_BOT_URL")
+            .expect("TELEGRAM_BOT_URL env var is missing")
+            .parse()
+            .expect("TELEGRAM_BOT_URL is invalid URL");
         let redis_address = std::env::var("REDIS_ADDRESS")
             .expect("REDIS_ADDRESS env var is missing");
 
@@ -30,6 +35,7 @@ impl TelegramBotConfig{
             pocket_redirect_web_server_port,
             pocket_redirect_uri,
             telegram_bot_token,
+            telegram_bot_url,
             redis_address
         }
     }

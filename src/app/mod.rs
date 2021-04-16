@@ -21,6 +21,7 @@ use crate::{
 pub struct Application{
     pub http_client: Client,
     pub telegram_client: TelegramClient,
+    pub telegram_bot_url: url::Url,
     pub redis_client: RedisStorrage,
     pub active_processors: PubSub<TelegramUserId, String>,
     pub pocket_api_config: PocketApiConfig,

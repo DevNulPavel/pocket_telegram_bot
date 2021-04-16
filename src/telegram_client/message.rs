@@ -33,3 +33,10 @@ impl AsRef<TelegramMessageData> for TelegramMessage{
         &self.data
     }
 }
+
+impl std::ops::Deref for TelegramMessage{
+    type Target = TelegramMessageData;
+    fn deref(&self) -> &TelegramMessageData {
+        &self.data
+    }
+}
