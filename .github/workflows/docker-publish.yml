@@ -6,6 +6,7 @@ on:
 jobs:
     # Push image to GitHub Packages.
     # See also https://docs.docker.com/docker-hub/builds/
+    # https://docs.docker.com/ci-cd/github-actions/
     push:
         runs-on: ubuntu-latest
         steps:
