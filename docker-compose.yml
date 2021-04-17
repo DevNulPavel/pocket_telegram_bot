@@ -1,7 +1,7 @@
 version: "3.8"
 services:
     redis:
-        image: arm64v8/redis:6.2.1-alpine
+        image: redis:6.2.1-alpine
         container_name: redis
         restart: always
         environment:
