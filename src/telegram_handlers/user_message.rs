@@ -122,7 +122,7 @@ async fn process_confirmation_waiting(app: &Application, user_id: TelegramUserId
 }
 
 #[instrument(skip(app))]
-async fn process_autorized(app: &Application, user_id: TelegramUserId, msg: String) -> Result<(), TelegramBotError> {
+async fn process_autorized(app: &Application, pocket_api_token: String, user_id: TelegramUserId, msg: String) -> Result<(), TelegramBotError> {
     match msg.as_str() {
         "/start" => {
             app
@@ -149,6 +149,22 @@ async fn process_autorized(app: &Application, user_id: TelegramUserId, msg: Stri
         text => {
             let is_url = validator::validate_url(text);
             if is_url {
+                // Добавляем данному клиенту новое сообщение
+                let pocket_res = {
+                    let client = pocket_api_client::PocketApiClient::new(app.pocket_api_config.clone(), 
+                                                                        pocket_api_token);
+                    client
+                        .add(msg, None)
+                        .await
+                        .tap_err(|e|{ error!("Pocket url append error: {}", e) })?
+                };
+
+                // Сообщение пользователю
+                app
+                    .telegram_client
+                    .send_message(user_id, format!("Url: {}", pocket_res.normal_url))
+                    .await
+                    .tap_err(|e|{ error!("Message send error: {}", e) })?;
             }else{
                 app
                     .telegram_client
@@ -196,7 +212,7 @@ pub async fn user_message_processing_loop(app: Arc<Application>,
             },
             UserState::Authorized{pocket_api_token} => {
                 debug!("User is authorized in pocket: {}", pocket_api_token);
-                process_autorized(app.as_ref(), user_id, msg)
+                process_autorized(app.as_ref(), pocket_api_token, user_id, msg)
                     .await?;
             }
         }

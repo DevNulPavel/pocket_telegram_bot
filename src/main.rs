@@ -80,7 +80,7 @@ fn initialize_logs() {
 
 #[tokio::main]
 async fn main(){
-    dotenv::dotenv().expect("Environment .env file read failed");
+    dotenv::from_path("env/local.env").ok();
 
     initialize_logs();
 

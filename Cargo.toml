@@ -16,7 +16,7 @@ derive_more = "0.99.13"
 serde = {version = "1.0.125", features = ["derive"]}
 serde_json = "1.0.64"
 cow_arc = "0.2.2"
-reqwest_inspect_json = "0.0.7"
+reqwest_inspect_json = "0.0.8"
 bb8 = "0.7.0"
 bb8-redis = "0.9.0"
 futures = "0.3.14"
@@ -26,8 +26,8 @@ tap = "1.0.1"
 validator = "0.13.0"
 redis = {version = "0.20.0", features = ["aio", "tokio-comp"]}
 tokio = {version = "1.4.0", features = ["full"]}
-reqwest = {version = "0.11.2", features = ["json", "rustls-tls"]}
-pocket_api_client = {git = "https://github.com/DevNulPavel/pocket_api_client", rev = "5a9eabea88efbda103bdb780533ce5532782b65e"}
+reqwest = {version = "0.11.2", default-features = false, features = ["json", "rustls-tls"]}
+pocket_api_client = {git = "https://github.com/DevNulPavel/pocket_api_client", rev = "1ae45444e11781397888ead9e000d0f271b24af5"}
 # num_enum = "0.5.1"
 # deadpool-redis = "0.7.1"
 # deadpool = "0.7.0"

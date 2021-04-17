@@ -1,4 +1,4 @@
 .DS_Store
 /target
-/redis_data
-.env
+/redis_db_data
+*.env
